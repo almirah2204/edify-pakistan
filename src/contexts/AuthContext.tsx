@@ -21,7 +21,7 @@ interface AuthContextType {
   session: Session | null;
   profile: UserProfile | null;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null; role?: UserRole }>;
   signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<{ error: Error | null }>;
@@ -122,9 +122,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
+  const signIn = async (email: string, password: string): Promise<{ error: Error | null; role?: UserRole }> => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    
+    if (error) {
+      console.error('Sign in error:', error);
+      return { error };
+    }
+
+    if (data.user) {
+      console.log('Login success, fetching profile for user:', data.user.id);
+      const profileData = await fetchProfile(data.user.id);
+      
+      if (profileData) {
+        console.log('Profile fetched, role:', profileData.role);
+        setProfile(profileData);
+        return { error: null, role: profileData.role };
+      } else {
+        console.error('Failed to fetch profile after login');
+        return { error: new Error('Failed to fetch user profile') };
+      }
+    }
+
+    return { error: null };
   };
 
   const signUp = async (email: string, password: string, fullName: string, role: UserRole) => {
