@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Fee {
@@ -79,6 +79,51 @@ export function useFeeStats() {
       const paid = data.filter(f => f.status === 'paid').length;
 
       return { totalDue, totalPaid, pending, paid };
+    },
+  });
+}
+
+export function useUpdateFee() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: {
+      id: string;
+      amount_paid?: number;
+      status?: string;
+      payment_method?: string;
+      paid_date?: string | null;
+    }) => {
+      const { id, ...updates } = data;
+      const { error } = await supabase
+        .from('fees')
+        .update(updates)
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fees'] });
+    },
+  });
+}
+
+export function useCreateFee() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: {
+      student_id: string;
+      amount_due: number;
+      due_date: string;
+      fee_structure_id?: string;
+    }) => {
+      const { error } = await supabase
+        .from('fees')
+        .insert(data);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['fees'] });
     },
   });
 }

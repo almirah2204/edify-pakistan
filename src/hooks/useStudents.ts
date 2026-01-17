@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Student {
@@ -20,6 +20,7 @@ export interface Student {
   };
   class?: {
     name: string;
+    section: string | null;
   };
 }
 
@@ -32,7 +33,7 @@ export function useStudents() {
         .select(`
           *,
           profile:profiles!students_id_fkey(full_name, email, phone, avatar_url),
-          class:classes(name)
+          class:classes(name, section)
         `)
         .order('created_at', { ascending: false });
 
@@ -51,13 +52,13 @@ export function useStudent(id: string) {
         .select(`
           *,
           profile:profiles!students_id_fkey(full_name, email, phone, avatar_url),
-          class:classes(name)
+          class:classes(name, section)
         `)
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data as Student;
+      return data as Student | null;
     },
     enabled: !!id,
   });
@@ -80,5 +81,74 @@ export function useStudentsByClass(classId: string) {
       return data as Student[];
     },
     enabled: !!classId,
+  });
+}
+
+export function useUpdateStudent() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: {
+      id: string;
+      class_id?: string | null;
+      admission_no?: string;
+      gender?: string;
+      date_of_birth?: string | null;
+      address?: string;
+      blood_group?: string;
+    }) => {
+      const { id, ...updates } = data;
+      const { error } = await supabase
+        .from('students')
+        .update(updates)
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
+  });
+}
+
+export function useDeleteStudent() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('students')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
+  });
+}
+
+// Note: Creating a student requires creating an auth user first (signup flow)
+// This mutation is for updating student details for existing users
+export function useCreateStudent() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: {
+      full_name: string;
+      email: string;
+      class_id?: string | null;
+      admission_no?: string;
+      gender?: string;
+      date_of_birth?: string | null;
+      address?: string;
+      blood_group?: string;
+    }) => {
+      // For admin creating student, we'd need to use auth admin API
+      // For now, throw an error indicating this needs signup flow
+      throw new Error('Students must register through the signup flow. Use the signup page to create student accounts.');
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
   });
 }
