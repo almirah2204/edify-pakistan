@@ -130,7 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string, fullName: string, role: UserRole) => {
     const redirectUrl = `${window.location.origin}/`;
     
-    // Sign up the user
+    // Sign up the user - the database trigger will create profile and role
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -147,45 +147,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error };
     }
 
-    // If signup successful and we have a user, create profile and role
+    // Wait a moment for the trigger to complete, then fetch profile
     if (data.user) {
-      // Create profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: data.user.id,
-          email: email,
-          full_name: fullName,
-          is_approved: role === 'admin' ? true : false, // Admins auto-approved, others need approval
-          language_pref: 'en',
-        });
-
-      if (profileError) {
-        console.error('Error creating profile:', profileError);
-        return { error: new Error('Failed to create profile: ' + profileError.message) };
-      }
-
-      // Create user role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: data.user.id,
-          role: role,
-        });
-
-      if (roleError) {
-        console.error('Error creating role:', roleError);
-        return { error: new Error('Failed to assign role: ' + roleError.message) };
-      }
-
-      // Create extended profile based on role
-      if (role === 'teacher') {
-        await supabase.from('teachers').insert({ id: data.user.id });
-      } else if (role === 'student') {
-        await supabase.from('students').insert({ id: data.user.id });
-      } else if (role === 'parent') {
-        await supabase.from('parents').insert({ id: data.user.id });
-      }
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const profileData = await fetchProfile(data.user.id);
+      setProfile(profileData);
     }
     
     return { error: null };
