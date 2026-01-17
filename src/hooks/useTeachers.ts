@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Teacher {
@@ -46,11 +46,53 @@ export function useTeacher(id: string) {
           profile:profiles!teachers_id_fkey(full_name, email, phone, avatar_url)
         `)
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data as Teacher;
+      return data as Teacher | null;
     },
     enabled: !!id,
+  });
+}
+
+export function useUpdateTeacher() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: {
+      id: string;
+      department?: string;
+      designation?: string;
+      qualification?: string;
+      salary?: number | null;
+      joining_date?: string | null;
+    }) => {
+      const { id, ...updates } = data;
+      const { error } = await supabase
+        .from('teachers')
+        .update(updates)
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teachers'] });
+    },
+  });
+}
+
+export function useDeleteTeacher() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('teachers')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teachers'] });
+    },
   });
 }
