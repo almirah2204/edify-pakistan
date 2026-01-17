@@ -9,6 +9,7 @@ import { ThemeToggle, LanguageToggle } from '@/components/common/SettingsToggles
 import { GraduationCap, Mail, Lock, User, Eye, EyeOff, Shield, BookOpen, Users, Baby } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { getRoleDashboard } from '@/components/auth/ProtectedRoute';
 
 type AuthMode = 'login' | 'signup';
 
@@ -42,6 +43,7 @@ export default function AuthPage() {
         const { error } = await signIn(email, password);
         if (error) throw error;
         toast.success('Login successful!');
+        // Navigate to role-specific dashboard will be handled by PublicRoute redirect
         navigate('/dashboard');
       } else {
         if (password !== confirmPassword) {
@@ -51,7 +53,8 @@ export default function AuthPage() {
         const { error } = await signUp(email, password, fullName, selectedRole);
         if (error) throw error;
         toast.success(t('auth.signupSuccess'));
-        navigate('/dashboard');
+        // Navigate to the role-specific dashboard
+        navigate(getRoleDashboard(selectedRole));
       }
     } catch (error: any) {
       toast.error(error.message || 'Authentication failed');
