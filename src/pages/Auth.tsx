@@ -40,11 +40,13 @@ export default function AuthPage() {
 
     try {
       if (mode === 'login') {
-        const { error } = await signIn(email, password);
+        const { error, role } = await signIn(email, password);
         if (error) throw error;
-        toast.success('Login successful!');
-        // Navigate to role-specific dashboard will be handled by PublicRoute redirect
-        navigate('/dashboard');
+        
+        const dashboardPath = role ? getRoleDashboard(role) : '/dashboard';
+        console.log(`Login success, role: ${role}, redirecting to ${dashboardPath}`);
+        toast.success(`Login successful! Redirecting to ${role} dashboard...`);
+        navigate(dashboardPath, { replace: true });
       } else {
         if (password !== confirmPassword) {
           toast.error('Passwords do not match');
@@ -52,9 +54,11 @@ export default function AuthPage() {
         }
         const { error } = await signUp(email, password, fullName, selectedRole);
         if (error) throw error;
+        
+        const dashboardPath = getRoleDashboard(selectedRole);
+        console.log(`Signup success, role: ${selectedRole}, redirecting to ${dashboardPath}`);
         toast.success(t('auth.signupSuccess'));
-        // Navigate to the role-specific dashboard
-        navigate(getRoleDashboard(selectedRole));
+        navigate(dashboardPath, { replace: true });
       }
     } catch (error: any) {
       toast.error(error.message || 'Authentication failed');
