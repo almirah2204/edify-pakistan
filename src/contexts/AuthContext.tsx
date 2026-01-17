@@ -38,27 +38,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
-      // Fetch profile
+      // Fetch profile - use maybeSingle to avoid error when no rows
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         console.error('Error fetching profile:', profileError);
         return null;
       }
 
-      // Fetch role from user_roles table
+      if (!profileData) {
+        console.log('No profile found for user:', userId);
+        return null;
+      }
+
+      // Fetch role from user_roles table - use maybeSingle
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
-        .single();
+        .maybeSingle();
 
       if (roleError) {
         console.error('Error fetching role:', roleError);
+        return null;
+      }
+
+      if (!roleData) {
+        console.log('No role found for user:', userId);
         return null;
       }
 
