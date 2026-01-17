@@ -37,6 +37,7 @@ import {
   Baby,
 } from 'lucide-react';
 import { NotificationBadge } from './DashboardWidgets';
+import { getRoleDashboard } from '@/components/auth/ProtectedRoute';
 
 interface NavItem {
   label: string;
@@ -46,7 +47,16 @@ interface NavItem {
   roles: UserRole[];
 }
 
-const navItems: NavItem[] = [
+// Helper to get role-prefixed href
+const getRoleHref = (basePath: string, role: UserRole): string => {
+  const rolePrefix = `/${role}`;
+  if (basePath === '/dashboard') {
+    return `${rolePrefix}/dashboard`;
+  }
+  return `${rolePrefix}${basePath}`;
+};
+
+const baseNavItems: NavItem[] = [
   { label: 'Dashboard', labelKey: 'nav.dashboard', icon: <LayoutDashboard className="h-5 w-5" />, href: '/dashboard', roles: ['admin', 'teacher', 'student', 'parent'] },
   { label: 'Students', labelKey: 'nav.students', icon: <GraduationCap className="h-5 w-5" />, href: '/students', roles: ['admin', 'teacher'] },
   { label: 'Teachers', labelKey: 'nav.teachers', icon: <Users className="h-5 w-5" />, href: '/teachers', roles: ['admin'] },
@@ -77,10 +87,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, profile, signOut } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Demo role for now - will be replaced with actual role from profile
-  const currentRole: UserRole = (profile?.role as UserRole) || 'admin';
+  const currentRole: UserRole = profile?.role || 'admin';
 
-  const filteredNavItems = navItems.filter(item => item.roles.includes(currentRole));
+  // Get nav items with role-prefixed hrefs
+  const filteredNavItems = baseNavItems
+    .filter(item => item.roles.includes(currentRole))
+    .map(item => ({
+      ...item,
+      href: getRoleHref(item.href, currentRole),
+    }));
+
+  const dashboardHref = getRoleDashboard(currentRole);
 
   const handleSignOut = async () => {
     await signOut();
@@ -91,7 +108,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div className="p-6 border-b border-sidebar-border">
-        <Link to="/dashboard" className="flex items-center gap-3">
+        <Link to={dashboardHref} className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-primary flex items-center justify-center shadow-glow">
             <GraduationCap className="h-6 w-6 text-primary-foreground" />
           </div>
@@ -167,7 +184,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </SheetContent>
           </Sheet>
 
-          <Link to="/dashboard" className="flex items-center gap-2">
+          <Link to={dashboardHref} className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
               <GraduationCap className="h-5 w-5 text-primary-foreground" />
             </div>
