@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Attendance {
@@ -18,9 +18,9 @@ export interface Attendance {
   };
 }
 
-export function useAttendance(date?: string) {
+export function useAttendance(classId?: string, date?: string) {
   return useQuery({
-    queryKey: ['attendance', date],
+    queryKey: ['attendance', classId, date],
     queryFn: async () => {
       let query = supabase
         .from('attendance')
@@ -33,6 +33,9 @@ export function useAttendance(date?: string) {
         `)
         .order('created_at', { ascending: false });
 
+      if (classId) {
+        query = query.eq('class_id', classId);
+      }
       if (date) {
         query = query.eq('date', date);
       }
@@ -114,6 +117,34 @@ export function useAttendanceStats(classId?: string, startDate?: string, endDate
       const late = data.filter(a => a.status === 'late').length;
 
       return { total, present, absent, late, presentPercentage: total > 0 ? (present / total) * 100 : 0 };
+    },
+  });
+}
+
+export function useMarkAttendance() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (attendanceData: Array<{
+      student_id: string;
+      class_id: string;
+      date: string;
+      status: string;
+      marked_by: string;
+      remarks?: string;
+    }>) => {
+      // Use upsert to handle both new and updated attendance
+      const { error } = await supabase
+        .from('attendance')
+        .upsert(attendanceData, { 
+          onConflict: 'student_id,date',
+          ignoreDuplicates: false 
+        });
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['attendance'] });
     },
   });
 }
