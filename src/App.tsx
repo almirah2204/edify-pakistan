@@ -16,9 +16,20 @@ import PendingApproval from "./pages/PendingApproval";
 
 // Role-specific dashboards
 import AdminDashboard from "./pages/admin/Dashboard";
+import AdminStudents from "./pages/admin/Students";
+import AdminTeachers from "./pages/admin/Teachers";
+import AdminFees from "./pages/admin/Fees";
+import AdminUsers from "./pages/admin/Users";
 import TeacherDashboard from "./pages/teacher/Dashboard";
+import TeacherAttendance from "./pages/teacher/Attendance";
+import TeacherHomework from "./pages/teacher/Homework";
+import TeacherResults from "./pages/teacher/Results";
 import StudentDashboard from "./pages/student/Dashboard";
+import StudentAttendance from "./pages/student/Attendance";
+import StudentResults from "./pages/student/Results";
+import StudentFees from "./pages/student/Fees";
 import ParentDashboard from "./pages/parent/Dashboard";
+import ParentChildren from "./pages/parent/Children";
 
 const queryClient = new QueryClient();
 
@@ -41,67 +52,36 @@ const AppRoutes = () => (
   <Routes>
     {/* Public routes */}
     <Route path="/" element={<Index />} />
-    <Route path="/auth" element={
-      <PublicRoute>
-        <Auth />
-      </PublicRoute>
-    } />
+    <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
     <Route path="/pending-approval" element={<PendingApproval />} />
-
-    {/* Dashboard redirect - sends to role-specific dashboard */}
-    <Route path="/dashboard" element={
-      <ProtectedRoute>
-        <DashboardRedirect />
-      </ProtectedRoute>
-    } />
+    <Route path="/dashboard" element={<ProtectedRoute><DashboardRedirect /></ProtectedRoute>} />
 
     {/* Admin routes */}
-    <Route path="/admin/dashboard" element={
-      <ProtectedRoute allowedRoles={['admin']}>
-        <AdminDashboard />
-      </ProtectedRoute>
-    } />
-    <Route path="/admin/*" element={
-      <ProtectedRoute allowedRoles={['admin']}>
-        <AdminDashboard />
-      </ProtectedRoute>
-    } />
+    <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+    <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['admin']}><AdminStudents /></ProtectedRoute>} />
+    <Route path="/admin/teachers" element={<ProtectedRoute allowedRoles={['admin']}><AdminTeachers /></ProtectedRoute>} />
+    <Route path="/admin/fees" element={<ProtectedRoute allowedRoles={['admin']}><AdminFees /></ProtectedRoute>} />
+    <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><AdminUsers /></ProtectedRoute>} />
+    <Route path="/admin/*" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
 
     {/* Teacher routes */}
-    <Route path="/teacher/dashboard" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
-        <TeacherDashboard />
-      </ProtectedRoute>
-    } />
-    <Route path="/teacher/*" element={
-      <ProtectedRoute allowedRoles={['teacher']}>
-        <TeacherDashboard />
-      </ProtectedRoute>
-    } />
+    <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherDashboard /></ProtectedRoute>} />
+    <Route path="/teacher/attendance" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherAttendance /></ProtectedRoute>} />
+    <Route path="/teacher/homework" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherHomework /></ProtectedRoute>} />
+    <Route path="/teacher/results" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherResults /></ProtectedRoute>} />
+    <Route path="/teacher/*" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherDashboard /></ProtectedRoute>} />
 
     {/* Student routes */}
-    <Route path="/student/dashboard" element={
-      <ProtectedRoute allowedRoles={['student']}>
-        <StudentDashboard />
-      </ProtectedRoute>
-    } />
-    <Route path="/student/*" element={
-      <ProtectedRoute allowedRoles={['student']}>
-        <StudentDashboard />
-      </ProtectedRoute>
-    } />
+    <Route path="/student/dashboard" element={<ProtectedRoute allowedRoles={['student']}><StudentDashboard /></ProtectedRoute>} />
+    <Route path="/student/attendance" element={<ProtectedRoute allowedRoles={['student']}><StudentAttendance /></ProtectedRoute>} />
+    <Route path="/student/results" element={<ProtectedRoute allowedRoles={['student']}><StudentResults /></ProtectedRoute>} />
+    <Route path="/student/fees" element={<ProtectedRoute allowedRoles={['student']}><StudentFees /></ProtectedRoute>} />
+    <Route path="/student/*" element={<ProtectedRoute allowedRoles={['student']}><StudentDashboard /></ProtectedRoute>} />
 
     {/* Parent routes */}
-    <Route path="/parent/dashboard" element={
-      <ProtectedRoute allowedRoles={['parent']}>
-        <ParentDashboard />
-      </ProtectedRoute>
-    } />
-    <Route path="/parent/*" element={
-      <ProtectedRoute allowedRoles={['parent']}>
-        <ParentDashboard />
-      </ProtectedRoute>
-    } />
+    <Route path="/parent/dashboard" element={<ProtectedRoute allowedRoles={['parent']}><ParentDashboard /></ProtectedRoute>} />
+    <Route path="/parent/children" element={<ProtectedRoute allowedRoles={['parent']}><ParentChildren /></ProtectedRoute>} />
+    <Route path="/parent/*" element={<ProtectedRoute allowedRoles={['parent']}><ParentDashboard /></ProtectedRoute>} />
 
     {/* Catch-all 404 */}
     <Route path="*" element={<NotFound />} />
