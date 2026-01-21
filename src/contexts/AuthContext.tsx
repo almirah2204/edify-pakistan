@@ -20,6 +20,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: UserProfile | null;
+  profileLoaded: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null; role?: UserRole }>;
   signUp: (email: string, password: string, fullName: string, role: UserRole) => Promise<{ error: Error | null }>;
@@ -34,7 +35,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileLoaded, setProfileLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const fetchProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
@@ -89,14 +93,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const fetchProfileWithRetry = async (
+    userId: string,
+    opts: { retries?: number; delayMs?: number } = {}
+  ): Promise<UserProfile | null> => {
+    const retries = opts.retries ?? 8;
+    const delayMs = opts.delayMs ?? 250;
+
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const p = await fetchProfile(userId);
+      if (p) return p;
+      if (attempt < retries) await sleep(delayMs);
+    }
+
+    return null;
+  };
+
   const refreshProfile = async () => {
     if (user) {
-      const profileData = await fetchProfile(user.id);
+      setProfileLoaded(false);
+      const profileData = await fetchProfileWithRetry(user.id);
       setProfile(profileData);
+      setProfileLoaded(true);
     }
   };
 
   useEffect(() => {
+    setIsLoading(true);
+    setProfileLoaded(false);
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -104,12 +129,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         
         if (session?.user) {
+          setIsLoading(true);
+          setProfileLoaded(false);
           // Defer profile fetch to avoid deadlock
           setTimeout(() => {
-            fetchProfile(session.user.id).then(setProfile);
+            fetchProfileWithRetry(session.user.id).then((p) => {
+              setProfile(p);
+              setProfileLoaded(true);
+              setIsLoading(false);
+            });
           }, 0);
         } else {
           setProfile(null);
+          setProfileLoaded(true);
+          setIsLoading(false);
         }
       }
     );
@@ -120,11 +153,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       
       if (session?.user) {
-        fetchProfile(session.user.id).then((p) => {
+        setIsLoading(true);
+        setProfileLoaded(false);
+        fetchProfileWithRetry(session.user.id).then((p) => {
           setProfile(p);
+          setProfileLoaded(true);
           setIsLoading(false);
         });
       } else {
+        setProfile(null);
+        setProfileLoaded(true);
         setIsLoading(false);
       }
     });
@@ -133,31 +171,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string): Promise<{ error: Error | null; role?: UserRole }> => {
+    setIsLoading(true);
+    setProfileLoaded(false);
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     
     if (error) {
       console.error('Sign in error:', error);
+      setIsLoading(false);
+      setProfileLoaded(true);
       return { error };
     }
 
     if (data.user) {
       console.log('Login success, fetching profile for user:', data.user.id);
-      const profileData = await fetchProfile(data.user.id);
+      const profileData = await fetchProfileWithRetry(data.user.id);
       
       if (profileData) {
         console.log('Profile fetched, role:', profileData.role);
         setProfile(profileData);
+        setProfileLoaded(true);
+        setIsLoading(false);
         return { error: null, role: profileData.role };
       } else {
         console.error('Failed to fetch profile after login');
+        setProfileLoaded(true);
+        setIsLoading(false);
         return { error: new Error('Failed to fetch user profile') };
       }
     }
 
+    setProfileLoaded(true);
+    setIsLoading(false);
     return { error: null };
   };
 
   const signUp = async (email: string, password: string, fullName: string, role: UserRole) => {
+    setIsLoading(true);
+    setProfileLoaded(false);
     const redirectUrl = `${window.location.origin}/`;
     
     // Sign up the user - the database trigger will create profile and role
@@ -174,15 +224,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     if (error) {
+      setIsLoading(false);
+      setProfileLoaded(true);
       return { error };
     }
 
-    // Wait a moment for the trigger to complete, then fetch profile
+    // Wait briefly for the trigger to complete, then fetch profile with retry
     if (data.user) {
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const profileData = await fetchProfile(data.user.id);
+      await sleep(300);
+      const profileData = await fetchProfileWithRetry(data.user.id, { retries: 12, delayMs: 300 });
       setProfile(profileData);
     }
+
+    setProfileLoaded(true);
+    setIsLoading(false);
     
     return { error: null };
   };
@@ -190,6 +245,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
+    setProfileLoaded(true);
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
@@ -217,6 +273,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       session,
       profile,
+      profileLoaded,
       isLoading,
       signIn,
       signUp,
