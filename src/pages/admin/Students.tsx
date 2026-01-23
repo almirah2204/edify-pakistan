@@ -4,6 +4,7 @@ import { DashboardLayout } from '@/components/common/DashboardLayout';
 import { SlideIn } from '@/components/animations/Transitions';
 import { useStudents, useCreateStudent, useUpdateStudent, useDeleteStudent } from '@/hooks/useStudents';
 import { useClasses } from '@/hooks/useClasses';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,6 +58,7 @@ interface StudentFormData {
   date_of_birth: string;
   address: string;
   blood_group: string;
+  father_name: string;
 }
 
 const emptyFormData: StudentFormData = {
@@ -68,7 +70,70 @@ const emptyFormData: StudentFormData = {
   date_of_birth: '',
   address: '',
   blood_group: '',
+  father_name: '',
 };
+
+// Generate unique student ID in format: YY-XXXX
+async function generateStudentId(): Promise<string> {
+  const currentYear = new Date().getFullYear();
+  const yearPrefix = String(currentYear).slice(-2); // e.g., "26" for 2026
+  
+  // Query for highest admission_no in current year
+  const { data, error } = await supabase
+    .from('students')
+    .select('admission_no')
+    .like('admission_no', `${yearPrefix}-%`)
+    .order('admission_no', { ascending: false })
+    .limit(1);
+  
+  let nextNumber = 1;
+  
+  if (!error && data && data.length > 0 && data[0].admission_no) {
+    // Extract the number part after the dash
+    const parts = data[0].admission_no.split('-');
+    if (parts.length === 2) {
+      const lastNumber = parseInt(parts[1], 10);
+      if (!isNaN(lastNumber)) {
+        nextNumber = lastNumber + 1;
+      }
+    }
+  }
+  
+  // Pad with zeros to 4 digits
+  const paddedNumber = String(nextNumber).padStart(4, '0');
+  return `${yearPrefix}-${paddedNumber}`;
+}
+
+// Check for duplicate student based on Full Name + Father's Name + DOB
+async function checkDuplicateStudent(
+  fullName: string,
+  fatherName: string,
+  dateOfBirth: string
+): Promise<boolean> {
+  if (!fullName || !fatherName || !dateOfBirth) {
+    return false; // Skip check if any field is empty
+  }
+  
+  const { data, error } = await supabase
+    .from('students')
+    .select(`
+      id,
+      father_name,
+      date_of_birth,
+      profile:profiles!students_id_fkey(full_name)
+    `)
+    .eq('date_of_birth', dateOfBirth)
+    .ilike('father_name', fatherName.trim());
+  
+  if (error || !data) {
+    return false;
+  }
+  
+  // Check for matching full_name (case-insensitive)
+  return data.some((student) => 
+    student.profile?.full_name?.toLowerCase().trim() === fullName.toLowerCase().trim()
+  );
+}
 
 export default function StudentsPage() {
   const { t } = useLanguage();
@@ -88,8 +153,11 @@ export default function StudentsPage() {
     s.admission_no?.toLowerCase().includes(search.toLowerCase())
   ) || [];
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
     
     try {
       if (editingId) {
@@ -101,40 +169,61 @@ export default function StudentsPage() {
           date_of_birth: formData.date_of_birth || null,
           address: formData.address,
           blood_group: formData.blood_group,
+          father_name: formData.father_name,
         });
         toast.success('Student updated successfully! / طالب علم کی معلومات اپڈیٹ ہو گئیں');
       } else {
+        // Check for possible duplicate before creating
+        const isDuplicate = await checkDuplicateStudent(
+          formData.full_name,
+          formData.father_name,
+          formData.date_of_birth
+        );
+        
+        if (isDuplicate) {
+          toast.warning('Possible duplicate student detected! Please verify before proceeding.');
+          setIsSubmitting(false);
+          return;
+        }
+        
+        // Generate unique student ID
+        const generatedId = await generateStudentId();
+        
         await createStudent.mutateAsync({
           full_name: formData.full_name,
           email: formData.email,
           class_id: formData.class_id || null,
-          admission_no: formData.admission_no,
+          admission_no: generatedId,
           gender: formData.gender,
           date_of_birth: formData.date_of_birth || null,
           address: formData.address,
           blood_group: formData.blood_group,
+          father_name: formData.father_name,
         });
-        toast.success('Student created successfully! / طالب علم کا اندراج ہو گیا');
+        toast.success(`Student added! Unique ID: ${generatedId}`);
       }
       setIsDialogOpen(false);
       setFormData(emptyFormData);
       setEditingId(null);
     } catch (error: any) {
       toast.error(error.message || 'Operation failed');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleEdit = (student: any) => {
     setEditingId(student.id);
     setFormData({
-      full_name: student.profiles?.full_name || '',
-      email: student.profiles?.email || '',
+      full_name: student.profile?.full_name || '',
+      email: student.profile?.email || '',
       class_id: student.class_id || '',
       admission_no: student.admission_no || '',
       gender: student.gender || '',
       date_of_birth: student.date_of_birth || '',
       address: student.address || '',
       blood_group: student.blood_group || '',
+      father_name: student.father_name || '',
     });
     setIsDialogOpen(true);
   };
@@ -204,13 +293,25 @@ export default function StudentsPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="admission_no">Admission No</Label>
+                      <Label htmlFor="father_name">Father's Name</Label>
                       <Input
-                        id="admission_no"
-                        value={formData.admission_no}
-                        onChange={(e) => setFormData({ ...formData, admission_no: e.target.value })}
+                        id="father_name"
+                        value={formData.father_name}
+                        onChange={(e) => setFormData({ ...formData, father_name: e.target.value })}
+                        required={!editingId}
                       />
                     </div>
+                    {editingId && (
+                      <div className="space-y-2">
+                        <Label htmlFor="admission_no">Student ID</Label>
+                        <Input
+                          id="admission_no"
+                          value={formData.admission_no}
+                          disabled
+                          className="bg-muted"
+                        />
+                      </div>
+                    )}
                     <div className="space-y-2">
                       <Label htmlFor="class_id">Class</Label>
                       <Select value={formData.class_id} onValueChange={(v) => setFormData({ ...formData, class_id: v })}>
@@ -273,8 +374,8 @@ export default function StudentsPage() {
                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                       Cancel
                     </Button>
-                    <Button type="submit" disabled={createStudent.isPending || updateStudent.isPending}>
-                      {createStudent.isPending || updateStudent.isPending ? 'Saving...' : 'Save'}
+                    <Button type="submit" disabled={isSubmitting || createStudent.isPending || updateStudent.isPending}>
+                      {isSubmitting || createStudent.isPending || updateStudent.isPending ? 'Saving...' : 'Save'}
                     </Button>
                   </DialogFooter>
                 </form>
