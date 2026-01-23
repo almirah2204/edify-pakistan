@@ -11,6 +11,7 @@ export interface Student {
   address: string | null;
   blood_group: string | null;
   cnic_bform: string | null;
+  father_name: string | null;
   created_at: string | null;
   profile?: {
     full_name: string;
@@ -96,6 +97,7 @@ export function useUpdateStudent() {
       date_of_birth?: string | null;
       address?: string;
       blood_group?: string;
+      father_name?: string;
     }) => {
       const { id, ...updates } = data;
       const { error } = await supabase
@@ -142,6 +144,7 @@ export function useCreateStudent() {
       date_of_birth?: string | null;
       address?: string;
       blood_group?: string;
+      father_name?: string;
     }) => {
       // For admin creating student, we'd need to use auth admin API
       // For now, throw an error indicating this needs signup flow
