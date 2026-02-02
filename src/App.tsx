@@ -19,6 +19,10 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import AdminStudents from "./pages/admin/Students";
 import AdminTeachers from "./pages/admin/Teachers";
 import AdminFees from "./pages/admin/Fees";
+import AdminFeeStructures from "./pages/admin/FeeStructures";
+import AdminGenerateFees from "./pages/admin/GenerateFees";
+import AdminReceivePayment from "./pages/admin/ReceivePayment";
+import AdminFeeReports from "./pages/admin/FeeReports";
 import AdminUsers from "./pages/admin/Users";
 import TeacherDashboard from "./pages/teacher/Dashboard";
 import TeacherAttendance from "./pages/teacher/Attendance";
@@ -61,6 +65,10 @@ const AppRoutes = () => (
     <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['admin']}><AdminStudents /></ProtectedRoute>} />
     <Route path="/admin/teachers" element={<ProtectedRoute allowedRoles={['admin']}><AdminTeachers /></ProtectedRoute>} />
     <Route path="/admin/fees" element={<ProtectedRoute allowedRoles={['admin']}><AdminFees /></ProtectedRoute>} />
+    <Route path="/admin/fee-structures" element={<ProtectedRoute allowedRoles={['admin']}><AdminFeeStructures /></ProtectedRoute>} />
+    <Route path="/admin/generate-fees" element={<ProtectedRoute allowedRoles={['admin']}><AdminGenerateFees /></ProtectedRoute>} />
+    <Route path="/admin/receive-payment" element={<ProtectedRoute allowedRoles={['admin']}><AdminReceivePayment /></ProtectedRoute>} />
+    <Route path="/admin/fee-reports" element={<ProtectedRoute allowedRoles={['admin']}><AdminFeeReports /></ProtectedRoute>} />
     <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><AdminUsers /></ProtectedRoute>} />
     <Route path="/admin/*" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
 
