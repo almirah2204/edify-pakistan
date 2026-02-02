@@ -72,6 +72,7 @@ const baseNavItems: NavItem[] = [
   { label: 'Generate Fees', labelKey: 'nav.generateFees', icon: <FileText className="h-5 w-5" />, href: '/generate-fees', roles: ['admin'] },
   { label: 'Receive Payment', labelKey: 'nav.receivePayment', icon: <Wallet className="h-5 w-5" />, href: '/receive-payment', roles: ['admin'] },
   { label: 'Fee Reports', labelKey: 'nav.feeReports', icon: <BarChart3 className="h-5 w-5" />, href: '/fee-reports', roles: ['admin'] },
+  { label: 'Late Fine Settings', labelKey: 'nav.lateFineSettings', icon: <Settings className="h-5 w-5" />, href: '/late-fine-settings', roles: ['admin'] },
   { label: 'Salaries', labelKey: 'nav.salaries', icon: <Wallet className="h-5 w-5" />, href: '/salaries', roles: ['admin', 'teacher'] },
   { label: 'Timetable', labelKey: 'nav.timetable', icon: <Calendar className="h-5 w-5" />, href: '/timetable', roles: ['admin', 'teacher', 'student', 'parent'] },
   { label: 'Notices', labelKey: 'nav.notices', icon: <Bell className="h-5 w-5" />, href: '/notices', roles: ['admin', 'teacher', 'student', 'parent'] },
