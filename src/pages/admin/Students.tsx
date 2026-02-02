@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { DashboardLayout } from '@/components/common/DashboardLayout';
 import { SlideIn } from '@/components/animations/Transitions';
@@ -46,8 +47,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Plus, Search, Edit, Trash2, GraduationCap } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, GraduationCap, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
 
 interface StudentFormData {
   full_name: string;
@@ -143,6 +145,30 @@ export default function StudentsPage() {
   const updateStudent = useUpdateStudent();
   const deleteStudent = useDeleteStudent();
 
+  // Fetch fee status for all students
+  const { data: feeStatusMap } = useQuery({
+    queryKey: ['student-fee-status'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('fee_invoices')
+        .select('student_id, total_due, amount_paid, balance, status');
+      
+      if (error) throw error;
+      
+      // Aggregate by student
+      const statusMap: Record<string, { totalDue: number; totalPaid: number; balance: number }> = {};
+      data?.forEach((invoice) => {
+        if (!statusMap[invoice.student_id]) {
+          statusMap[invoice.student_id] = { totalDue: 0, totalPaid: 0, balance: 0 };
+        }
+        statusMap[invoice.student_id].totalDue += Number(invoice.total_due) || 0;
+        statusMap[invoice.student_id].totalPaid += Number(invoice.amount_paid) || 0;
+        statusMap[invoice.student_id].balance += Number(invoice.balance) || 0;
+      });
+      return statusMap;
+    },
+  });
+
   const [search, setSearch] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -154,6 +180,44 @@ export default function StudentsPage() {
   ) || [];
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const formatCurrency = (amount: number) => {
+    if (amount >= 1000) {
+      return `Rs. ${(amount / 1000).toFixed(1)}K`;
+    }
+    return `Rs. ${amount}`;
+  };
+
+  const getFeeStatusBadge = (studentId: string) => {
+    const status = feeStatusMap?.[studentId];
+    if (!status || status.totalDue === 0) {
+      return (
+        <Badge variant="outline" className="text-muted-foreground">
+          No Fees
+        </Badge>
+      );
+    }
+    
+    if (status.balance <= 0) {
+      return (
+        <Link to={`/admin/fee-reports?student=${studentId}`}>
+          <Badge className="bg-success/20 text-success hover:bg-success/30 cursor-pointer">
+            <DollarSign className="h-3 w-3 mr-1" />
+            Paid
+          </Badge>
+        </Link>
+      );
+    }
+    
+    return (
+      <Link to={`/admin/fee-reports?student=${studentId}`}>
+        <Badge variant="destructive" className="cursor-pointer hover:bg-destructive/90">
+          <DollarSign className="h-3 w-3 mr-1" />
+          Due {formatCurrency(status.balance)}
+        </Badge>
+      </Link>
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -421,6 +485,7 @@ export default function StudentsPage() {
                         <TableHead>Admission No</TableHead>
                         <TableHead>Class</TableHead>
                         <TableHead>Gender</TableHead>
+                        <TableHead>Fee Status</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -439,6 +504,7 @@ export default function StudentsPage() {
                             ) : '-'}
                           </TableCell>
                           <TableCell className="capitalize">{student.gender || '-'}</TableCell>
+                          <TableCell>{getFeeStatusBadge(student.id)}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
                               <Button variant="ghost" size="icon" onClick={() => handleEdit(student)}>
