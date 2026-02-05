@@ -12,9 +12,7 @@ export interface Class {
   updated_at: string | null;
   teacher?: {
     id: string;
-    profile?: {
-      full_name: string;
-    };
+    full_name: string;
   } | null;
 }
 
@@ -26,20 +24,16 @@ export function useClasses() {
         .from('classes')
         .select(`
           *,
-          teacher:teachers(
+          teacher:profiles!classes_teacher_id_fkey(
             id,
-            profile:profiles!teachers_id_fkey(full_name)
+            full_name
           )
         `)
         .order('name', { ascending: true });
 
       if (error) throw error;
       
-      // Transform the data to match our interface
-      return (data || []).map(item => ({
-        ...item,
-        teacher: Array.isArray(item.teacher) ? item.teacher[0] || null : item.teacher,
-      })) as Class[];
+      return (data || []) as Class[];
     },
   });
 }
@@ -52,9 +46,9 @@ export function useClass(id: string) {
         .from('classes')
         .select(`
           *,
-          teacher:teachers(
+          teacher:profiles!classes_teacher_id_fkey(
             id,
-            profile:profiles!teachers_id_fkey(full_name)
+            full_name
           )
         `)
         .eq('id', id)
@@ -62,10 +56,7 @@ export function useClass(id: string) {
 
       if (error) throw error;
       
-      return {
-        ...data,
-        teacher: Array.isArray(data.teacher) ? data.teacher[0] || null : data.teacher,
-      } as Class;
+      return data as Class;
     },
     enabled: !!id,
   });
