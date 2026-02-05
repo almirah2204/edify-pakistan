@@ -312,7 +312,7 @@ export default function ClassesPage() {
                           <TableCell>{classItem.grade_level ?? '-'}</TableCell>
                           <TableCell>{classItem.academic_year || '-'}</TableCell>
                           <TableCell>
-                            {classItem.teacher?.profile?.full_name || (
+                            {classItem.teacher?.full_name || (
                               <span className="text-muted-foreground">Not assigned</span>
                             )}
                           </TableCell>
