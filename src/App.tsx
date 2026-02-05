@@ -24,6 +24,7 @@ import AdminGenerateFees from "./pages/admin/GenerateFees";
 import AdminReceivePayment from "./pages/admin/ReceivePayment";
 import AdminFeeReports from "./pages/admin/FeeReports";
 import AdminLateFineSettings from "./pages/admin/LateFineSettings";
+import AdminClasses from "./pages/admin/Classes";
 import AdminUsers from "./pages/admin/Users";
 import TeacherDashboard from "./pages/teacher/Dashboard";
 import TeacherAttendance from "./pages/teacher/Attendance";
@@ -71,6 +72,7 @@ const AppRoutes = () => (
     <Route path="/admin/receive-payment" element={<ProtectedRoute allowedRoles={['admin']}><AdminReceivePayment /></ProtectedRoute>} />
     <Route path="/admin/fee-reports" element={<ProtectedRoute allowedRoles={['admin']}><AdminFeeReports /></ProtectedRoute>} />
     <Route path="/admin/late-fine-settings" element={<ProtectedRoute allowedRoles={['admin']}><AdminLateFineSettings /></ProtectedRoute>} />
+    <Route path="/admin/classes" element={<ProtectedRoute allowedRoles={['admin']}><AdminClasses /></ProtectedRoute>} />
     <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><AdminUsers /></ProtectedRoute>} />
     <Route path="/admin/*" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
 
