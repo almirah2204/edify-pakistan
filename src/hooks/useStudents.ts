@@ -129,7 +129,7 @@ export function useDeleteStudent() {
   });
 }
 
-// Create student with profile (admin-only, no auth user created)
+// Create student via edge function (admin-only, creates auth user + profile + student)
 export function useCreateStudent() {
   const queryClient = useQueryClient();
   
@@ -146,55 +146,19 @@ export function useCreateStudent() {
       blood_group?: string;
       father_name?: string;
     }) => {
-      // Generate a unique ID for this student record
-      const studentId = crypto.randomUUID();
+      const { data: response, error } = await supabase.functions.invoke('create-student', {
+        body: data,
+      });
       
-      // First create the profile
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert({
-          id: studentId,
-          full_name: data.full_name,
-          email: data.email || null,
-          phone: data.phone || null,
-          is_approved: true,
-        });
-      
-      if (profileError) throw profileError;
-      
-      // Then create the student record
-      const { error: studentError } = await supabase
-        .from('students')
-        .insert({
-          id: studentId,
-          class_id: data.class_id || null,
-          admission_no: data.admission_no || null,
-          gender: data.gender || null,
-          date_of_birth: data.date_of_birth || null,
-          address: data.address || null,
-          blood_group: data.blood_group || null,
-          father_name: data.father_name || null,
-        });
-      
-      if (studentError) {
-        // Rollback profile if student creation fails
-        await supabase.from('profiles').delete().eq('id', studentId);
-        throw studentError;
+      if (error) {
+        throw new Error(error.message || 'Failed to create student');
       }
       
-      // Assign student role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: studentId,
-          role: 'student',
-        });
-      
-      if (roleError) {
-        console.warn('Could not assign student role:', roleError);
+      if (!response.success) {
+        throw new Error(response.error || 'Failed to create student');
       }
       
-      return { id: studentId, admission_no: data.admission_no };
+      return { id: response.id, admission_no: response.admission_no };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
