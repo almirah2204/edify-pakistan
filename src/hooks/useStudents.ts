@@ -129,15 +129,15 @@ export function useDeleteStudent() {
   });
 }
 
-// Note: Creating a student requires creating an auth user first (signup flow)
-// This mutation is for updating student details for existing users
+// Create student with profile (admin-only, no auth user created)
 export function useCreateStudent() {
   const queryClient = useQueryClient();
   
   return useMutation({
     mutationFn: async (data: {
       full_name: string;
-      email: string;
+      email?: string;
+      phone?: string;
       class_id?: string | null;
       admission_no?: string;
       gender?: string;
@@ -146,9 +146,55 @@ export function useCreateStudent() {
       blood_group?: string;
       father_name?: string;
     }) => {
-      // For admin creating student, we'd need to use auth admin API
-      // For now, throw an error indicating this needs signup flow
-      throw new Error('Students must register through the signup flow. Use the signup page to create student accounts.');
+      // Generate a unique ID for this student record
+      const studentId = crypto.randomUUID();
+      
+      // First create the profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .insert({
+          id: studentId,
+          full_name: data.full_name,
+          email: data.email || null,
+          phone: data.phone || null,
+          is_approved: true,
+        });
+      
+      if (profileError) throw profileError;
+      
+      // Then create the student record
+      const { error: studentError } = await supabase
+        .from('students')
+        .insert({
+          id: studentId,
+          class_id: data.class_id || null,
+          admission_no: data.admission_no || null,
+          gender: data.gender || null,
+          date_of_birth: data.date_of_birth || null,
+          address: data.address || null,
+          blood_group: data.blood_group || null,
+          father_name: data.father_name || null,
+        });
+      
+      if (studentError) {
+        // Rollback profile if student creation fails
+        await supabase.from('profiles').delete().eq('id', studentId);
+        throw studentError;
+      }
+      
+      // Assign student role
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: studentId,
+          role: 'student',
+        });
+      
+      if (roleError) {
+        console.warn('Could not assign student role:', roleError);
+      }
+      
+      return { id: studentId, admission_no: data.admission_no };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['students'] });
