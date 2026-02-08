@@ -655,6 +655,7 @@ export type Database = {
           is_approved: boolean | null
           language_pref: string | null
           phone: string | null
+          school_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -666,6 +667,7 @@ export type Database = {
           is_approved?: boolean | null
           language_pref?: string | null
           phone?: string | null
+          school_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -677,9 +679,18 @@ export type Database = {
           is_approved?: boolean | null
           language_pref?: string | null
           phone?: string | null
+          school_id?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_school_id_fkey"
+            columns: ["school_id"]
+            isOneToOne: false
+            referencedRelation: "schools"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       results: {
         Row: {
@@ -788,6 +799,90 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      schools: {
+        Row: {
+          academic_year: string | null
+          address: string | null
+          city: string | null
+          code: string
+          created_at: string | null
+          currency: string | null
+          domain: string | null
+          email: string | null
+          id: string
+          is_active: boolean | null
+          logo_url: string | null
+          max_staff: number | null
+          max_students: number | null
+          name: string
+          phone: string | null
+          primary_color: string | null
+          principal_name: string | null
+          secondary_color: string | null
+          subscription_end: string | null
+          subscription_plan: string | null
+          subscription_start: string | null
+          subscription_status: string | null
+          timezone: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          academic_year?: string | null
+          address?: string | null
+          city?: string | null
+          code: string
+          created_at?: string | null
+          currency?: string | null
+          domain?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          max_staff?: number | null
+          max_students?: number | null
+          name: string
+          phone?: string | null
+          primary_color?: string | null
+          principal_name?: string | null
+          secondary_color?: string | null
+          subscription_end?: string | null
+          subscription_plan?: string | null
+          subscription_start?: string | null
+          subscription_status?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          academic_year?: string | null
+          address?: string | null
+          city?: string | null
+          code?: string
+          created_at?: string | null
+          currency?: string | null
+          domain?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean | null
+          logo_url?: string | null
+          max_staff?: number | null
+          max_students?: number | null
+          name?: string
+          phone?: string | null
+          primary_color?: string | null
+          principal_name?: string | null
+          secondary_color?: string | null
+          subscription_end?: string | null
+          subscription_plan?: string | null
+          subscription_start?: string | null
+          subscription_status?: string | null
+          timezone?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
       }
       student_fees: {
         Row: {
@@ -1071,6 +1166,7 @@ export type Database = {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
       }
+      get_user_school_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1078,9 +1174,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "teacher" | "student" | "parent"
+      app_role: "admin" | "teacher" | "student" | "parent" | "super_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1208,7 +1305,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "teacher", "student", "parent"],
+      app_role: ["admin", "teacher", "student", "parent", "super_admin"],
     },
   },
 } as const

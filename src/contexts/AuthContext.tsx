@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
-export type UserRole = 'admin' | 'teacher' | 'student' | 'parent';
+export type UserRole = 'super_admin' | 'admin' | 'teacher' | 'student' | 'parent';
 
 interface UserProfile {
   id: string;
@@ -14,6 +14,7 @@ interface UserProfile {
   phone?: string;
   language_pref: 'en' | 'ur';
   created_at: string;
+  school_id?: string;
 }
 
 interface AuthContextType {
@@ -86,6 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         phone: profileData.phone,
         language_pref: (profileData.language_pref as 'en' | 'ur') || 'en',
         created_at: profileData.created_at,
+        school_id: profileData.school_id || undefined,
       };
     } catch (error) {
       console.error('Error in fetchProfile:', error);

@@ -37,6 +37,10 @@ import StudentFees from "./pages/student/Fees";
 import ParentDashboard from "./pages/parent/Dashboard";
 import ParentChildren from "./pages/parent/Children";
 
+// Super Admin pages
+import SuperAdminDashboard from "./pages/super-admin/Dashboard";
+import SuperAdminSchools from "./pages/super-admin/Schools";
+
 const queryClient = new QueryClient();
 
 // Smart redirect component based on user role
@@ -62,19 +66,24 @@ const AppRoutes = () => (
     <Route path="/pending-approval" element={<PendingApproval />} />
     <Route path="/dashboard" element={<ProtectedRoute><DashboardRedirect /></ProtectedRoute>} />
 
+    {/* Super Admin routes */}
+    <Route path="/super-admin/dashboard" element={<ProtectedRoute allowedRoles={['super_admin']}><SuperAdminDashboard /></ProtectedRoute>} />
+    <Route path="/super-admin/schools" element={<ProtectedRoute allowedRoles={['super_admin']}><SuperAdminSchools /></ProtectedRoute>} />
+    <Route path="/super-admin/*" element={<ProtectedRoute allowedRoles={['super_admin']}><SuperAdminDashboard /></ProtectedRoute>} />
+
     {/* Admin routes */}
-    <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
-    <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['admin']}><AdminStudents /></ProtectedRoute>} />
-    <Route path="/admin/teachers" element={<ProtectedRoute allowedRoles={['admin']}><AdminTeachers /></ProtectedRoute>} />
-    <Route path="/admin/fees" element={<ProtectedRoute allowedRoles={['admin']}><AdminFees /></ProtectedRoute>} />
-    <Route path="/admin/fee-structures" element={<ProtectedRoute allowedRoles={['admin']}><AdminFeeStructures /></ProtectedRoute>} />
-    <Route path="/admin/generate-fees" element={<ProtectedRoute allowedRoles={['admin']}><AdminGenerateFees /></ProtectedRoute>} />
-    <Route path="/admin/receive-payment" element={<ProtectedRoute allowedRoles={['admin']}><AdminReceivePayment /></ProtectedRoute>} />
-    <Route path="/admin/fee-reports" element={<ProtectedRoute allowedRoles={['admin']}><AdminFeeReports /></ProtectedRoute>} />
-    <Route path="/admin/late-fine-settings" element={<ProtectedRoute allowedRoles={['admin']}><AdminLateFineSettings /></ProtectedRoute>} />
-    <Route path="/admin/classes" element={<ProtectedRoute allowedRoles={['admin']}><AdminClasses /></ProtectedRoute>} />
-    <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><AdminUsers /></ProtectedRoute>} />
-    <Route path="/admin/*" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+    <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminDashboard /></ProtectedRoute>} />
+    <Route path="/admin/students" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminStudents /></ProtectedRoute>} />
+    <Route path="/admin/teachers" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminTeachers /></ProtectedRoute>} />
+    <Route path="/admin/fees" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminFees /></ProtectedRoute>} />
+    <Route path="/admin/fee-structures" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminFeeStructures /></ProtectedRoute>} />
+    <Route path="/admin/generate-fees" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminGenerateFees /></ProtectedRoute>} />
+    <Route path="/admin/receive-payment" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminReceivePayment /></ProtectedRoute>} />
+    <Route path="/admin/fee-reports" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminFeeReports /></ProtectedRoute>} />
+    <Route path="/admin/late-fine-settings" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminLateFineSettings /></ProtectedRoute>} />
+    <Route path="/admin/classes" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminClasses /></ProtectedRoute>} />
+    <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminUsers /></ProtectedRoute>} />
+    <Route path="/admin/*" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminDashboard /></ProtectedRoute>} />
 
     {/* Teacher routes */}
     <Route path="/teacher/dashboard" element={<ProtectedRoute allowedRoles={['teacher']}><TeacherDashboard /></ProtectedRoute>} />

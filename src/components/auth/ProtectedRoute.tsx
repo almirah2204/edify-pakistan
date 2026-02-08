@@ -63,6 +63,8 @@ export function PublicRoute({ children }: PublicRouteProps) {
 
 export function getRoleDashboard(role: UserRole): string {
   switch (role) {
+    case 'super_admin':
+      return '/super-admin/dashboard';
     case 'admin':
       return '/admin/dashboard';
     case 'teacher':
