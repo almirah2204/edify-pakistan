@@ -80,6 +80,26 @@ Deno.serve(async (req) => {
     // Create admin client for privileged operations
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Check if email is provided and already exists
+    if (body.email) {
+      const { data: existingUsers } = await adminClient.auth.admin.listUsers();
+      const emailExists = existingUsers?.users?.some(
+        (u) => u.email?.toLowerCase() === body.email?.toLowerCase()
+      );
+      
+      if (emailExists) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'A student with this email already exists. Please use a different email address.' 
+          }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      }
+    }
+
     // Generate a unique email if not provided (required for auth user)
     const studentEmail = body.email || `student_${Date.now()}_${Math.random().toString(36).substring(7)}@placeholder.local`;
     
@@ -100,7 +120,11 @@ Deno.serve(async (req) => {
 
     if (authError) {
       console.error('Auth user creation error:', authError);
-      return new Response(JSON.stringify({ error: authError.message }), {
+      // Provide a user-friendly error message
+      const errorMessage = authError.message.includes('already been registered')
+        ? 'A student with this email already exists. Please use a different email address.'
+        : authError.message;
+      return new Response(JSON.stringify({ error: errorMessage }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
