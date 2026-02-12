@@ -175,7 +175,7 @@ export default function ClassesPage() {
                     {editingId ? 'Update class information' : 'Enter class details to create a new record'}
                   </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
                   <div className="space-y-2">
                     <Label htmlFor="name">Class Name *</Label>
                     <Input
@@ -186,7 +186,7 @@ export default function ClassesPage() {
                       required
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="section">Section</Label>
                       <Input
@@ -218,7 +218,7 @@ export default function ClassesPage() {
                       <SelectTrigger>
                         <SelectValue placeholder="Select Academic Year" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-popover">
                         {academicYears.map((year) => (
                           <SelectItem key={year} value={year}>
                             {year}
@@ -236,7 +236,7 @@ export default function ClassesPage() {
                       <SelectTrigger>
                         <SelectValue placeholder="Assign a Teacher" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-popover">
                         {teachers?.map((teacher) => (
                           <SelectItem key={teacher.id} value={teacher.id}>
                             {teacher.profile?.full_name || 'Unknown'}

@@ -297,7 +297,7 @@ export default function GenerateFeesPage() {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-popover">
                       {MONTHS.map((month, idx) => (
                         <SelectItem key={idx} value={(idx + 1).toString().padStart(2, '0')}>
                           {month}
@@ -312,7 +312,7 @@ export default function GenerateFeesPage() {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-popover">
                       {years.map((year) => (
                         <SelectItem key={year} value={year}>
                           {year}
@@ -327,7 +327,7 @@ export default function GenerateFeesPage() {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-popover">
                       <SelectItem value="all">All Classes</SelectItem>
                       {classes?.map((cls) => (
                         <SelectItem key={cls.id} value={cls.id}>

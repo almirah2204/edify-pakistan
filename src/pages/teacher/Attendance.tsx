@@ -143,6 +143,7 @@ export default function TeacherAttendance() {
                         selected={selectedDate}
                         onSelect={(date) => date && setSelectedDate(date)}
                         initialFocus
+                        className="p-3 pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>

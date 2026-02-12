@@ -289,8 +289,8 @@ export default function FeeStructuresPage() {
                 {editingStructure ? 'Update fee details' : 'Create a new fee head'}
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="col-span-2 space-y-2">
                   <Label htmlFor="name">Fee Name *</Label>
                   <Input
@@ -322,7 +322,7 @@ export default function FeeStructuresPage() {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-popover">
                       {FREQUENCIES.map((f) => (
                         <SelectItem key={f.value} value={f.value}>
                           {f.label}
@@ -340,7 +340,7 @@ export default function FeeStructuresPage() {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-popover">
                       {FEE_CATEGORIES.map((c) => (
                         <SelectItem key={c.value} value={c.value}>
                           {c.label}

@@ -222,8 +222,8 @@ export default function SchoolsPage() {
                     {editingId ? 'Update school information' : 'Register a new school on SDMPK'}
                   </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="name">School Name *</Label>
                       <Input
@@ -310,7 +310,7 @@ export default function SchoolsPage() {
                         <SelectTrigger>
                           <SelectValue placeholder="Select Plan" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-popover">
                           <SelectItem value="trial">Trial (Free)</SelectItem>
                           <SelectItem value="basic">Basic</SelectItem>
                           <SelectItem value="standard">Standard</SelectItem>
