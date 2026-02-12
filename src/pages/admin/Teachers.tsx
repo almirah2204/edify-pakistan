@@ -231,12 +231,13 @@ export default function TeachersPage() {
               <DialogTitle>Edit Teacher</DialogTitle>
               <DialogDescription>Update teacher information</DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="department">Department</Label>
                   <Input
                     id="department"
+                    placeholder="e.g., Science, Arts"
                     value={formData.department}
                     onChange={(e) => setFormData({ ...formData, department: e.target.value })}
                   />
@@ -245,6 +246,7 @@ export default function TeachersPage() {
                   <Label htmlFor="designation">Designation</Label>
                   <Input
                     id="designation"
+                    placeholder="e.g., Senior Teacher"
                     value={formData.designation}
                     onChange={(e) => setFormData({ ...formData, designation: e.target.value })}
                   />
@@ -253,6 +255,7 @@ export default function TeachersPage() {
                   <Label htmlFor="qualification">Qualification</Label>
                   <Input
                     id="qualification"
+                    placeholder="e.g., M.Ed, B.Sc"
                     value={formData.qualification}
                     onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
                   />
@@ -262,6 +265,7 @@ export default function TeachersPage() {
                   <Input
                     id="salary"
                     type="number"
+                    placeholder="e.g., 50000"
                     value={formData.salary}
                     onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
                   />

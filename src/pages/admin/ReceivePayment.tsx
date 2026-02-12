@@ -349,8 +349,8 @@ export default function ReceivePaymentPage() {
                 )}
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="amount">Amount (PKR) *</Label>
                   <Input
@@ -382,7 +382,7 @@ export default function ReceivePaymentPage() {
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-popover">
                       {PAYMENT_MODES.map((mode) => (
                         <SelectItem key={mode.value} value={mode.value}>
                           {mode.label}

@@ -287,7 +287,7 @@ export default function FeeReportsPage() {
                         <SelectTrigger className="w-28">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent>
+                      <SelectContent className="bg-popover">
                           {years.map(year => (
                             <SelectItem key={year} value={year}>{year}</SelectItem>
                           ))}
@@ -428,7 +428,7 @@ export default function FeeReportsPage() {
                         <SelectTrigger className="w-full sm:w-64">
                           <SelectValue placeholder="Select a student..." />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-popover">
                           {uniqueStudents.map(s => (
                             <SelectItem key={s.id} value={s.id}>
                               {s.admission_no} - {s.name}

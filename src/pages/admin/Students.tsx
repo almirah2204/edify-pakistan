@@ -326,19 +326,20 @@ export default function StudentsPage() {
                   Add Student
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+               <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>{editingId ? 'Edit Student' : 'Add New Student'}</DialogTitle>
                   <DialogDescription>
                     {editingId ? 'Update student information' : 'Enter student details to create a new record'}
                   </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="full_name">Full Name</Label>
+                      <Label htmlFor="full_name">Full Name *</Label>
                       <Input
                         id="full_name"
+                        placeholder="e.g., Ahmed Ali"
                         value={formData.full_name}
                         onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                         required={!editingId}
@@ -346,10 +347,11 @@ export default function StudentsPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
+                      <Label htmlFor="email">Email *</Label>
                       <Input
                         id="email"
                         type="email"
+                        placeholder="e.g., student@email.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required={!editingId}
@@ -357,9 +359,10 @@ export default function StudentsPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="father_name">Father's Name</Label>
+                      <Label htmlFor="father_name">Father's Name *</Label>
                       <Input
                         id="father_name"
+                        placeholder="e.g., Muhammad Ali"
                         value={formData.father_name}
                         onChange={(e) => setFormData({ ...formData, father_name: e.target.value })}
                         required={!editingId}
@@ -382,7 +385,7 @@ export default function StudentsPage() {
                         <SelectTrigger>
                           <SelectValue placeholder="Select Class" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-popover">
                           {classes?.map((cls) => (
                             <SelectItem key={cls.id} value={cls.id}>
                               {cls.name} {cls.section && `- ${cls.section}`}
@@ -397,7 +400,7 @@ export default function StudentsPage() {
                         <SelectTrigger>
                           <SelectValue placeholder="Select Gender" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-popover">
                           <SelectItem value="male">Male</SelectItem>
                           <SelectItem value="female">Female</SelectItem>
                         </SelectContent>
@@ -418,7 +421,7 @@ export default function StudentsPage() {
                         <SelectTrigger>
                           <SelectValue placeholder="Select Blood Group" />
                         </SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-popover">
                           {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
                             <SelectItem key={bg} value={bg}>{bg}</SelectItem>
                           ))}
@@ -429,6 +432,7 @@ export default function StudentsPage() {
                       <Label htmlFor="address">Address</Label>
                       <Input
                         id="address"
+                        placeholder="e.g., House 123, Street 5, Lahore"
                         value={formData.address}
                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                       />

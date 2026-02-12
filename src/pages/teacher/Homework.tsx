@@ -129,8 +129,8 @@ export default function TeacherHomework() {
                 <DialogHeader>
                   <DialogTitle>Assign New Homework</DialogTitle>
                 </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <form onSubmit={handleSubmit} className="space-y-5 mt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Class *</Label>
                       {classesLoading ? (
@@ -201,6 +201,7 @@ export default function TeacherHomework() {
                           selected={dueDate}
                           onSelect={setDueDate}
                           initialFocus
+                          className="p-3 pointer-events-auto"
                         />
                       </PopoverContent>
                     </Popover>
