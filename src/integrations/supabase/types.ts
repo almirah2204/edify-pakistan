@@ -151,6 +151,71 @@ export type Database = {
           },
         ]
       }
+      enquiries: {
+        Row: {
+          address: string | null
+          assigned_to: string | null
+          class_applied: string | null
+          contact_number: string | null
+          created_at: string | null
+          email: string | null
+          enquiry_date: string
+          father_name: string | null
+          follow_up_date: string | null
+          id: string
+          notes: string | null
+          previous_school: string | null
+          source: string | null
+          status: string | null
+          student_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          assigned_to?: string | null
+          class_applied?: string | null
+          contact_number?: string | null
+          created_at?: string | null
+          email?: string | null
+          enquiry_date?: string
+          father_name?: string | null
+          follow_up_date?: string | null
+          id?: string
+          notes?: string | null
+          previous_school?: string | null
+          source?: string | null
+          status?: string | null
+          student_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          assigned_to?: string | null
+          class_applied?: string | null
+          contact_number?: string | null
+          created_at?: string | null
+          email?: string | null
+          enquiry_date?: string
+          father_name?: string | null
+          follow_up_date?: string | null
+          id?: string
+          notes?: string | null
+          previous_school?: string | null
+          source?: string | null
+          status?: string | null
+          student_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enquiries_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exams: {
         Row: {
           class_id: string | null
@@ -1154,6 +1219,48 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      visitors: {
+        Row: {
+          check_in: string
+          check_out: string | null
+          created_at: string | null
+          id: string
+          id_number: string | null
+          id_type: string | null
+          notes: string | null
+          phone: string | null
+          purpose: string
+          visitor_name: string
+          whom_to_meet: string | null
+        }
+        Insert: {
+          check_in?: string
+          check_out?: string | null
+          created_at?: string | null
+          id?: string
+          id_number?: string | null
+          id_type?: string | null
+          notes?: string | null
+          phone?: string | null
+          purpose: string
+          visitor_name: string
+          whom_to_meet?: string | null
+        }
+        Update: {
+          check_in?: string
+          check_out?: string | null
+          created_at?: string | null
+          id?: string
+          id_number?: string | null
+          id_type?: string | null
+          notes?: string | null
+          phone?: string | null
+          purpose?: string
+          visitor_name?: string
+          whom_to_meet?: string | null
         }
         Relationships: []
       }

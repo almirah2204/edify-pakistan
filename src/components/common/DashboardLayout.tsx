@@ -77,6 +77,8 @@ const baseNavItems: NavItem[] = [
   { label: 'Timetable', labelKey: 'nav.timetable', icon: <Calendar className="h-5 w-5" />, href: '/timetable', roles: ['admin', 'teacher', 'student', 'parent'] },
   { label: 'Notices', labelKey: 'nav.notices', icon: <Bell className="h-5 w-5" />, href: '/notices', roles: ['admin', 'teacher', 'student', 'parent'] },
   { label: 'Leave Requests', labelKey: 'nav.leaves', icon: <Clock className="h-5 w-5" />, href: '/leaves', roles: ['admin', 'teacher'] },
+  { label: 'Report Cards', labelKey: 'nav.reportCards', icon: <FileText className="h-5 w-5" />, href: '/report-cards', roles: ['admin'] },
+  { label: 'Front Office', labelKey: 'nav.frontOffice', icon: <Building2 className="h-5 w-5" />, href: '/front-office', roles: ['admin'] },
   { label: 'User Management', labelKey: 'nav.users', icon: <UserCheck className="h-5 w-5" />, href: '/users', roles: ['admin'] },
   { label: 'Analytics', labelKey: 'nav.analytics', icon: <BarChart3 className="h-5 w-5" />, href: '/analytics', roles: ['admin'] },
 ];
