@@ -26,6 +26,12 @@ import AdminFeeReports from "./pages/admin/FeeReports";
 import AdminLateFineSettings from "./pages/admin/LateFineSettings";
 import AdminClasses from "./pages/admin/Classes";
 import AdminUsers from "./pages/admin/Users";
+import AdminTimetable from "./pages/admin/Timetable";
+import AdminNotices from "./pages/admin/Notices";
+import AdminFrontOffice from "./pages/admin/FrontOffice";
+import AdminReportCards from "./pages/admin/ReportCards";
+import AdminSalaries from "./pages/admin/Salaries";
+import AdminLeaveRequests from "./pages/admin/LeaveRequests";
 import TeacherDashboard from "./pages/teacher/Dashboard";
 import TeacherAttendance from "./pages/teacher/Attendance";
 import TeacherHomework from "./pages/teacher/Homework";
@@ -83,6 +89,12 @@ const AppRoutes = () => (
     <Route path="/admin/late-fine-settings" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminLateFineSettings /></ProtectedRoute>} />
     <Route path="/admin/classes" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminClasses /></ProtectedRoute>} />
     <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminUsers /></ProtectedRoute>} />
+    <Route path="/admin/timetable" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminTimetable /></ProtectedRoute>} />
+    <Route path="/admin/notices" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminNotices /></ProtectedRoute>} />
+    <Route path="/admin/front-office" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminFrontOffice /></ProtectedRoute>} />
+    <Route path="/admin/report-cards" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminReportCards /></ProtectedRoute>} />
+    <Route path="/admin/salaries" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminSalaries /></ProtectedRoute>} />
+    <Route path="/admin/leaves" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminLeaveRequests /></ProtectedRoute>} />
     <Route path="/admin/*" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminDashboard /></ProtectedRoute>} />
 
     {/* Teacher routes */}
